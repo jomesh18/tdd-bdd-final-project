@@ -104,3 +104,39 @@ class TestProductModel(unittest.TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
+    def test_read_a_product(self):
+        """It should Read a product"""
+        product = ProductFactory()
+        logging.logger(f"Created product is {str(product)}")
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        new_product = Product.find(product.id)
+        self.assertEqual(str(product), f"<Product {product.name} id=[{product.id}]>")
+        self.assertTrue(new_product is not None)
+        self.assertEqual(product.id, new_product.id)
+        self.assertEqual(product.name, new_product.name)
+        self.assertEqual(product.description, new_product.description)
+        self.assertEqual(product.available, new_product.available)
+        self.assertEqual(product.price, new_product.price)
+        self.assertEqual(product.category, new_product.category)
+
+    def test_update_a_product(self):
+        """It should update a product"""
+        product = ProductFactory()
+        logging.logger(f"Created product is {str(product)}")
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        logging.logger(f"Created product is {str(product)}")
+        old_id = product.id
+        product.description = 'new description'
+        product.update()
+        self.assertEqual(product.description, 'new description')
+        self.assertEqual(product.id, old_id)
+        products = Product.all()
+        self.assertEqual(len(products), 1)
+        fetched_product = products[0]
+        self.assertEqual(product.description, fetched_product_product.description)
+        self.assertEqual(product.id, fetched_product.id)
+ 
