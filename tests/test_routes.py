@@ -28,6 +28,7 @@ import os
 import logging
 from decimal import Decimal
 from unittest import TestCase
+from urllib.parse import quote_plus
 from service import app
 from service.common import status
 from service.models import db, init_db, Product
@@ -166,14 +167,13 @@ class TestProductRoutes(TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
-
     def test_get_all_products(self):
         """ It should get all the products """
+        products = self._create_products(5)
         response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
-        logging.debug("data = %s", data)
-        self.assertEqual(self.get_product_count(), len(data))
+        self.assertEqual(5, len(data))
 
     def test_get_product(self):
         """ It should read a product """
@@ -210,6 +210,37 @@ class TestProductRoutes(TestCase):
         product.id = 0
         response = self.client.put(BASE_URL+f'/{product.id}', json=product.serialize())
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_product(self):
+        """ It should delete a product """
+        products = self._create_products(5)
+        product_count = self.get_product_count()
+        product = products[0]
+        product_id = product.id
+        response = self.client.delete(BASE_URL+f'/{product_id}')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0)
+        # make sure they are deleted
+        response = self.client.get(f"{BASE_URL}/{product_id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(self.get_product_count(), product_count-1)
+
+    def test_delete_product_invalid_id(self):
+        """ Delete should work for invalid id """
+        response = self.client.delete(BASE_URL+f'/0')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_query_by_name(self):
+        """ get all products by name """
+        products = self._create_products(5)
+        test_name = products[0].name
+        name_count = len([p for p in products if p.name == test_name])
+        response = self.client.get(BASE_URL, query_string=f"name={quote_plus(test_name)}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), name_count)
+        for product in data:
+            self.assertIn(product["name"], test_name)
 
     ######################################################################
     # Utility functions

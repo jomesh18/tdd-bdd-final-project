@@ -102,10 +102,22 @@ def create_products():
 # PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
 #
 @app.route('/products', methods=['GET'])
-def get_all_products():
-    """ This method will get all the products in the database """
-    data = Product.all()
-    return jsonify(data), status.HTTP_200_OK
+def list_products():
+    """Returns a list of Products"""
+    app.logger.info("Request to list Products...")
+    products = []
+    name = request.args.get("name")
+
+    if name:
+        app.logger.info("Find by name: %s", name)
+        products = Product.find_by_name(name)
+    else:
+        app.logger.info("Find all")
+        products = Product.all()
+
+    results = [product.serialize() for product in products]
+    app.logger.info("[%s] Products returned", len(results))
+    return results, status.HTTP_200_OK
 
 
 ######################################################################
@@ -151,8 +163,18 @@ def update_product(id):
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
-
-
 #
 # PLACE YOUR CODE TO DELETE A PRODUCT HERE
 #
+@app.route('/products/<id>', methods=['DELETE'])
+def delete_product(id):
+    """Delete a product """
+    app.logger.info("Request to Delete a product with id [%s]", id)
+    product = Product.find(id)
+    app.logger.info("Product: %s", product)
+    if not product:
+        return '', status.HTTP_404_NOT_FOUND
+
+    product.delete()
+    return "", status.HTTP_204_NO_CONTENT
+
