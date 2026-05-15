@@ -167,6 +167,50 @@ class TestProductRoutes(TestCase):
     # ADD YOUR TEST CASES HERE
     #
 
+    def test_get_all_products(self):
+        """ It should get all the products """
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("data = %s", data)
+        self.assertEqual(self.get_product_count(), len(data))
+
+    def test_get_product(self):
+        """ It should read a product """
+        test_product = self._create_products(1)[0]
+        product_id = test_product.id
+
+        response = self.client.get(BASE_URL+f'/{product_id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("data = %s", data)
+        self.assertEqual(product_id, data['id'])
+        self.assertEqual(test_product.name, data['name'])
+
+    def test_get_product_not_found(self):
+        """ It should work for an id which is not available"""
+        response = self.client.get(BASE_URL+'/0')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)   
+        data = response.get_json()
+        self.assertIn("was not found", data["message"])
+
+    def test_update_product(self):
+        """ It should update an existing product """
+        product = self._create_products(1)[0]
+        product.name = 'a'
+        response = self.client.put(BASE_URL+f'/{product.id}', json=product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        logging.debug("data = %s", data)
+        self.assertEqual(data["name"], product.name)
+
+    def test_update_product_not_found(self):
+        """ It should return error for id not found """
+        product = ProductFactory()
+        product.id = 0
+        response = self.client.put(BASE_URL+f'/{product.id}', json=product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     ######################################################################
     # Utility functions
     ######################################################################
