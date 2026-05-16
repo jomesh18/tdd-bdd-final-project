@@ -104,7 +104,7 @@ Scenario: List all Products
     And I should see "Big Mac" in the results
     And I should see "Sheets" in the results
 
-Scenario: List all Products by Category
+Scenario: Search by Category
     When I visit the "Home Page"
     And I press the "Clear" button
     And I select "Food" in the "Category" dropdown
@@ -115,7 +115,7 @@ Scenario: List all Products by Category
     And I should not see "Shoes" in the results
     And I should not see "Sheets" in the results
 
-Scenario: List all Products by Availability
+Scenario: Search by available
     When I visit the "Home Page"
     And I press the "Clear" button
     And I select "True" in the "Available" dropdown
@@ -126,9 +126,8 @@ Scenario: List all Products by Availability
     And I should see "Sheets" in the results
     And I should not see "Shoes" in the results
 
-Scenario: List all Products by Name
+Scenario: Search by Name
     When I visit the "Home Page"
-    And I press the "Clear" button
     And I set the "Name" to "Hat"
     And I press the "Search" button
     Then I should see the message "Success"

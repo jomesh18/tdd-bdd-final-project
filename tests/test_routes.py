@@ -195,14 +195,19 @@ class TestProductRoutes(TestCase):
         self.assertIn("was not found", data["message"])
 
     def test_update_product(self):
-        """ It should update an existing product """
-        product = self._create_products(1)[0]
-        product.name = 'a'
-        response = self.client.put(BASE_URL+f'/{product.id}', json=product.serialize())
+        """It should Update an existing Product"""
+        # create a product to update
+        test_product = ProductFactory()
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # update the product
+        new_product = response.get_json()
+        new_product["description"] = "unknown"
+        response = self.client.put(f"{BASE_URL}/{new_product['id']}", json=new_product)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.get_json()
-        logging.debug("data = %s", data)
-        self.assertEqual(data["name"], product.name)
+        updated_product = response.get_json()
+        self.assertEqual(updated_product["description"], "unknown")
 
     def test_update_product_not_found(self):
         """ It should return error for id not found """
