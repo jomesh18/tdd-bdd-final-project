@@ -65,10 +65,11 @@ Scenario: Update a Product
     And I should see "True" in the "Available" dropdown
     And I should see "Cloths" in the "Category" dropdown
     And I should see "59.95" in the "Price" field
-    When I change the "Price" to "50.00"
+    When I change "Price" to "50.00"
     And I press the "Update" button
     Then I should see the message "Success"
-    When I press the "Clear" button
+    When I copy the "Id" field
+    And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
@@ -87,10 +88,11 @@ Scenario: Delete a Product
     And I press the "Clear" button
     And I paste the "Id" field
     And I press the "Delete" button
-    Then I should see the message  "Product has been Deleted!"
-    When I paste the "Id" field
-    And I press the "Retrieve" button
-    And I should not see "Hat" in the results
+    Then I should see the message "Product has been Deleted!"
+    When I press the "Clear" button
+    And I press the "Search" button
+    Then I should see the message "Success"
+    Then I should not see "Hat" in the results
 
 Scenario: List all Products
     When I visit the "Home Page"
@@ -105,7 +107,7 @@ Scenario: List all Products
 Scenario: List all Products by Category
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I set the "Category" to "Food"
+    And I select "Food" in the "Category" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "Big Mac" in the results
@@ -116,7 +118,7 @@ Scenario: List all Products by Category
 Scenario: List all Products by Availability
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I set the "Available" to "True"
+    And I select "True" in the "Available" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
     And I should see "Hat" in the results
